@@ -1,0 +1,7 @@
+(library
+ (name aoc_2023)
+ (libraries core stdio)
+ (preprocess
+ (pps ppx_expect ppx_inline_test ppx_assert))
+ (inline_tests))
+
