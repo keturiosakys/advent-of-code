@@ -3,23 +3,16 @@ open! Stdio
 
 (* Part 1 *)
 
-let filter_nums line =
-  List.filter (String.to_list line) ~f:(fun c ->
-    match Int.of_string_opt (String.of_char c) with
-    | Some _ -> true
-    | None -> false)
-  |> String.of_char_list
-;;
-
 let part_1 (input : string list) =
-  let calibrations =
-    List.map input ~f:(fun line ->
-      let filtered = filter_nums line in
-      [ filtered.[0]; filtered.[String.length filtered - 1] ]
-      |> String.of_char_list
-      |> Int.of_string)
-  in
-  List.fold calibrations ~init:0 ~f:( + )
+  List.fold input ~init:0 ~f:(fun acc line ->
+    let filtered =
+      List.filter_map (String.to_list line) ~f:(fun c ->
+        Int.of_string_opt (String.of_char c))
+    in
+    let first = List.hd_exn filtered in
+    let last = List.last_exn filtered in
+    let number = (first * 10) + last in
+    acc + number)
 ;;
 
 (* Part 2 *)
