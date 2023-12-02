@@ -41,7 +41,9 @@ let find_spoken_numbers line =
   List.filter_map num_strings ~f:(fun (str, value) ->
     if String.is_substring line ~substring:str
     then (
-      let positions = String.substr_index_all ~may_overlap:true line ~pattern:str in
+      let positions =
+        String.substr_index_all ~may_overlap:true line ~pattern:str
+      in
       Some (List.map positions ~f:(fun pos -> pos, value)))
     else None)
   |> Stdlib.List.flatten
