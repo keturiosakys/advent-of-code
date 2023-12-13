@@ -91,19 +91,32 @@ let part_1 (input : string list) =
   let engine_parts =
     List.filter parts ~f:(fun part -> is_attached part symbols)
   in
-  let non_engine_parts =
-    List.filter parts ~f:(fun part -> not @@ is_attached part symbols)
-  in
-  let () =
-    List.iter non_engine_parts ~f:(fun part ->
-      Stdio.printf
-        "%d row: %d  %d-%d\n"
-        part.value
-        (part.row + 1)
-        part.start_pos
-        part.end_pos)
-  in
   List.sum (module Int) engine_parts ~f:(fun part -> part.value)
+;;
+
+let find_adjacent_parts symbol (parts : part list) =
+  let rec loop acc = function
+    | [] -> acc
+    | _ :: _ when phys_equal (List.length acc) 2 -> acc
+    | (part : part) :: rest ->
+      if List.exists directions ~f:(fun (row, col) ->
+           if Int.equal symbol.row (part.row + row)
+           then
+             Int.equal symbol.col (part.start_pos + col)
+             || Int.equal symbol.col (part.end_pos + col)
+           else false)
+      then loop (part :: acc) rest
+      else loop acc rest
+  in
+  loop [] parts |> List.fold ~init:1 ~f:(fun acc part -> part.value * acc)
+;;
+
+let part_2 (input : string list) =
+  let parts, symbols = parse_parts_and_symbols input in
+  List.fold symbols ~init:0 ~f:(fun acc symbol ->
+    match symbol.sym with
+    | '*' -> acc + find_adjacent_parts symbol parts
+    | _ -> acc)
 ;;
 
 let%test_module "Day 3" =
@@ -123,6 +136,10 @@ let%test_module "Day 3" =
 
     let%test_unit "part 1" =
       [%test_eq: int] (part_1 (String.split_lines test_input)) 4361
+    ;;
+
+    let%test_unit "part 2" =
+      [%test_eq: int] (part_2 (String.split_lines test_input)) 467835
     ;;
   end)
 ;;
