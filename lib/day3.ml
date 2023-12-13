@@ -34,7 +34,21 @@ let parse_parts_and_symbols input =
          let line_items = String.to_list line in
          let rec loop idx start_idx curr_part parts symbols line_items =
            match line_items with
-           | [] -> parts, symbols
+           | [] ->
+             let parts =
+               match
+                 List.rev curr_part |> String.of_char_list |> Int.of_string_opt
+               with
+               | Some part ->
+                 { value = part
+                 ; row
+                 ; start_pos = start_idx |> Option.value_exn
+                 ; end_pos = idx - 1
+                 }
+                 :: parts
+               | None -> parts
+             in
+             parts, symbols
            | item :: rest when is_number item ->
              loop
                (idx + 1)
@@ -84,6 +98,18 @@ let part_1 (input : string list) =
   let parts, symbols = parse_parts_and_symbols input in
   let engine_parts =
     List.filter parts ~f:(fun part -> is_attached part symbols)
+  in
+  let non_engine_parts =
+    List.filter parts ~f:(fun part -> not @@ is_attached part symbols)
+  in
+  let () =
+    List.iter non_engine_parts ~f:(fun part ->
+      Stdio.printf
+        "%d row: %d  %d-%d\n"
+        part.value
+        (part.row + 1)
+        part.start_pos
+        part.end_pos)
   in
   List.sum (module Int) engine_parts ~f:(fun part -> part.value)
 ;;
