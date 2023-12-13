@@ -10,6 +10,7 @@ type part =
 type symbol =
   { row : int
   ; col : int
+  ; sym : char
   }
 
 let directions = [ -1, -1; -1, 0; -1, 1; 0, -1; 0, 1; 1, -1; 1, 0; 1, 1 ]
@@ -33,21 +34,22 @@ let parse_parts_and_symbols input =
     @@ List.mapi input ~f:(fun row line ->
          let line_items = String.to_list line in
          let rec loop idx start_idx curr_part parts symbols line_items =
+           let resolve_parts curr_part parts =
+             match
+               List.rev curr_part |> String.of_char_list |> Int.of_string_opt
+             with
+             | Some part ->
+               { value = part
+               ; row
+               ; start_pos = start_idx |> Option.value_exn
+               ; end_pos = idx - 1
+               }
+               :: parts
+             | None -> parts
+           in
            match line_items with
            | [] ->
-             let parts =
-               match
-                 List.rev curr_part |> String.of_char_list |> Int.of_string_opt
-               with
-               | Some part ->
-                 { value = part
-                 ; row
-                 ; start_pos = start_idx |> Option.value_exn
-                 ; end_pos = idx - 1
-                 }
-                 :: parts
-               | None -> parts
-             in
+             let parts = resolve_parts curr_part parts in
              parts, symbols
            | item :: rest when is_number item ->
              loop
@@ -58,21 +60,11 @@ let parse_parts_and_symbols input =
                symbols
                rest
            | item :: rest ->
-             let parts =
-               match
-                 List.rev curr_part |> String.of_char_list |> Int.of_string_opt
-               with
-               | Some part ->
-                 { value = part
-                 ; row
-                 ; start_pos = start_idx |> Option.value_exn
-                 ; end_pos = idx - 1
-                 }
-                 :: parts
-               | None -> parts
-             in
+             let parts = resolve_parts curr_part parts in
              let symbols =
-               if is_symbol item then { row; col = idx } :: symbols else symbols
+               if is_symbol item
+               then { row; col = idx; sym = item } :: symbols
+               else symbols
              in
              loop (idx + 1) None [] parts symbols rest
          in
