@@ -108,7 +108,10 @@ let find_adjacent_parts symbol (parts : part list) =
       then loop (part :: acc) rest
       else loop acc rest
   in
-  loop [] parts |> List.fold ~init:1 ~f:(fun acc part -> part.value * acc)
+  let adj = loop [] parts in
+  if List.length adj < 2
+  then 0
+  else List.fold adj ~init:1 ~f:(fun acc part -> part.value * acc)
 ;;
 
 let part_2 (input : string list) =

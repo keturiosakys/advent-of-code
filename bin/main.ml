@@ -31,6 +31,7 @@ let () =
     | 2, 1 -> Day2.part_1 (read_file !day)
     | 2, 2 -> Day2.part_2 (read_file !day)
     | 3, 1 -> Day3.part_1 (read_file !day)
+    | 3, 2 -> Day3.part_2 (read_file !day)
     | _, _ -> raise (Failure "Day or part not implemented")
   in
   printf "Day %d\nPart %d\nResult: %d\n" !day !part res
