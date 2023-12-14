@@ -20,21 +20,25 @@ let parse_numbers_exn (line : string) : int Hash_set.t * int Hash_set.t =
   | _ -> raise (failwith "Failed to parse on :")
 ;;
 
-let calculate_wins winning drawn =
+let calculate_wins (winning, drawn) =
   Hash_set.inter winning drawn |> Hash_set.length
 ;;
 
 let part_1 (input : string list) =
   List.fold input ~init:0 ~f:(fun acc line ->
-    let winning, drawn = parse_numbers_exn line in
-    let wins = calculate_wins winning drawn in
+    let wins = parse_numbers_exn line |> calculate_wins in
     match wins with
     | 0 -> acc
     | 1 -> acc + 1
     | n -> acc + (int_of_float @@ (float_of_int 2 ** float_of_int (n - 1))))
 ;;
 
-let part_2 (_input : string list) = 12 (* random number for now *)
+let part_2 (input : string list) =
+  let parsed =
+    List.map input ~f:(fun line -> parse_numbers_exn line |> calculate_wins)
+  in
+  0
+;;
 
 let%test_module "Day 4" =
   (module struct
