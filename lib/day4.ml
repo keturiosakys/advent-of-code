@@ -33,11 +33,24 @@ let part_1 (input : string list) =
     | n -> acc + (int_of_float @@ (float_of_int 2 ** float_of_int (n - 1))))
 ;;
 
-let part_2 (input : string list) =
-  let parsed =
-    List.map input ~f:(fun line -> parse_numbers_exn line |> calculate_wins)
+let calculate_copies (cards : (int * int) list) : int =
+  let rec calc' acc = function
+    | [] -> acc
+    | (wins, units) :: rest ->
+      let to_copy, rest = List.split_n rest wins in
+      let updated =
+        List.map to_copy ~f:(fun (w, copies) -> w, copies + units)
+      in
+      calc' (units :: acc) (updated @ rest)
   in
-  0
+  calc' [] cards |> List.reduce ~f:( + ) |> Option.value_exn
+;;
+
+let part_2 (input : string list) =
+  List.map input ~f:(fun line ->
+    let wins = parse_numbers_exn line |> calculate_wins in
+    wins, 1)
+  |> calculate_copies
 ;;
 
 let%test_module "Day 4" =
