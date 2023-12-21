@@ -2,6 +2,7 @@ open Core
 open Stdio
 open Aoc_2023
 
+
 let usage = "Usage: aoc_2023 --day <day> --part <part 1 or 2>"
 let day = ref 0
 let part = ref 0
@@ -15,10 +16,6 @@ let flags =
   ; "--part", Arg.Set_int part, "Part to run"
   ]
 ;;
-
-type lines_or_raw =
-  | Raw of string
-  | Lines of string list
 
 let read_file day =
   let file_name = "inputs/day" ^ Int.to_string day ^ ".txt" in
